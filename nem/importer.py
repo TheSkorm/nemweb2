@@ -52,7 +52,8 @@ class document():
                 if (row[0] == "I" and row[2] == dataSet):
                     headers = row
                 elif row[2] == dataSet:
-                    data.append({headers[ind]: x for ind, x in enumerate(row)})
+                    rowCleaned = {headers[ind]: x for ind, x in enumerate(row) if x != ''}
+                    data.append(rowCleaned)
             except(IndexError):
                 pass
         return data
