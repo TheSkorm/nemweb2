@@ -5,11 +5,9 @@ from zipfile import ZipFile
 
 from bs4 import BeautifulSoup
 
-DEFAULT_URL = "http://www.nemweb.com.au/Reports/CURRENT/"
-
 
 class importer():
-    def __init__(self, url=DEFAULT_URL):
+    def __init__(self, url="http://www.nemweb.com.au/Reports/CURRENT/"):
         self.p5 = files(url + "P5_Reports/")
         self.DispatchIS = files(url + "DispatchIS_Reports/")
         self.Notices = files(url + "Market_Notice/")
