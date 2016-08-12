@@ -28,6 +28,12 @@ class document():
         self.url = url
         self._cached = None
 
+    def __str__(self):
+        return self.url
+
+    def __repr__(self):
+        return self.url
+
     @property
     def data(self):
         if not self._cached:

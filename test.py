@@ -13,14 +13,19 @@ os.environ["AWS_SECRET_ACCESS_KEY"] = config["aws"]["AWS_SECRET_ACCESS_KEY"]
 
 dynamodb = boto3.resource('dynamodb', region_name='ap-southeast-2')
 
-table = dynamodb.Table('p5-regionalsolution')
+p5Table = dynamodb.Table('p5-regionalsolution')
+downloaded = dynamodb.Table('downloaded')
 
 nemImporter = nem.importer()
-payload = nemImporter.p5[0].filter("REGIONSOLUTION")[0]
-payload['index'] = payload['INTERVAL_DATETIME'] + payload['REGIONID']
 
-response = table.put_item(Item=payload)
-print(response)
-
-response = table.scan()
-print(response)
+for file in nemImporter.p5:
+    fileCheck = downloaded.get_item(Key={'url': str(file)})
+    if 'Item' in fileCheck:
+        pass
+    else:
+        print("Downloading " + str(file))
+        downloaded.put_item(Item={'url': str(file)})
+        rows = file.filter("REGIONSOLUTION")
+        for payload in rows:
+            payload['index'] = payload['INTERVAL_DATETIME'] + payload['REGIONID']
+            response = p5Table.put_item(Item=payload) #this should be a batch put item
