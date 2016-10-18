@@ -14,18 +14,23 @@ os.environ["AWS_SECRET_ACCESS_KEY"] = config["aws"]["AWS_SECRET_ACCESS_KEY"]
 dynamodb = boto3.resource('dynamodb', region_name='ap-southeast-2')
 
 p5Table = dynamodb.Table('p5-regionalsolution')
-downloaded = dynamodb.Table('downloaded')
+downloaded = dynamodb.Table('downloaded') #change this to be "the last file downloaded" so it doesn't need to check each file is downloaded or not
 
 nemImporter = nem.importer()
 
-for file in nemImporter.p5:
-    fileCheck = downloaded.get_item(Key={'url': str(file)})
-    if 'Item' in fileCheck:
-        pass
-    else:
-        print("Downloading " + str(file))
-        downloaded.put_item(Item={'url': str(file)})
-        rows = file.filter("REGIONSOLUTION")
+try:
+    latestData = downloaded.get_item(Key={'url': 'p5-regionalsolution'})['value']['date']
+except(KeyError):
+    latestData = '0'
+
+for nemFile in nemImporter.p5:
+    if int(nemFile.dateTime) > int(latestData):
+        print("Downloading " + str(nemFile))
+        downloaded.put_item(Item={'url': str(nemFile)})
+        rows = nemFile.filter("REGIONSOLUTION")
         for payload in rows:
             payload['index'] = payload['INTERVAL_DATETIME'] + payload['REGIONID']
             response = p5Table.put_item(Item=payload) #this should be a batch put item
+        downloaded.put_item(Item={'url':"p5-regionalsolution", 'date':nemFile.dateTime})
+    else:
+        print("Skipping " + str(nemFile))
