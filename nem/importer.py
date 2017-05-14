@@ -5,18 +5,19 @@ from datetime import datetime
 from io import BytesIO
 from urllib.request import urlopen
 from zipfile import ZipFile
-
+import zipfile
 from bs4 import BeautifulSoup
 
-os.environ['TZ'] = 'Australia/Sydney' #nem time is always in Sydney time
+os.environ['TZ'] = 'Australia/Sydney'  # nem time is always in Sydney time
+
 
 class importer():
     def __init__(self, url="http://www.nemweb.com.au/Reports/CURRENT/"):
         self.p5 = files(url + "P5_Reports/")
-#        self.DispatchIS = files(url + "DispatchIS_Reports/")
-#        self.Notices = files(url + "Market_Notice/")
-#        self.SCADA = files(url + "Dispatch_SCADA/")
-#        self.CO2 = files(url + "CDEII/")
+        self.DispatchIS = files(url + "DispatchIS_Reports/")
+        self.Notices = files(url + "Market_Notice/")
+        self.SCADA = files(url + "Dispatch_SCADA/")
+        self.CO2 = files(url + "CDEII/")
 
 
 class files(list):
@@ -31,11 +32,14 @@ class document():
     def __init__(self, url):
         self.url = url
         self._cached = None
-        nemDateRegex = re.compile('(2\d{11}(?:\d{2})?)[\._]')
+        nemDateRegex = re.compile('_(2\d{7,11})(?:\d{0,2})[\._]')
         try:
             strDate = nemDateRegex.findall(url)[0]
-            dateObject = datetime.strptime(strDate, "%Y%m%d%H%M")
-            self.dateTime = dateObject.strftime("%s")
+            try:
+                dateObject = datetime.strptime(strDate, "%Y%m%d%H%M")
+            except ValueError:
+                dateObject = datetime.strptime(strDate, "%Y%m%d")
+            self.dateTime = dateObject
         except(IndexError):
             pass
 
@@ -56,21 +60,29 @@ class document():
         return self._cached
 
     def _extract(self, url):
-        file = ZipFile(BytesIO(urlopen(url).read()))
-        data = file.read(file.namelist()[0])
-        return data
+        try:
+            file = ZipFile(BytesIO(urlopen(url).read()))
+            data = file.read(file.namelist()[0])
+            return data
+        except zipfile.BadZipFile:
+            print("Bad data in " + url)
+            pass
 
     def filter(self, dataSet):
-        csvfile = csv.reader(self.data)
-        headers = []
-        data = []
-        for row in csvfile:
-            try:
-                if (row[0] == "I" and row[2] == dataSet):
-                    headers = row
-                elif row[2] == dataSet:
-                    rowCleaned = {headers[ind]: x for ind, x in enumerate(row) if x != ''}
-                    data.append(rowCleaned)
-            except(IndexError):
-                pass
-        return data
+        try:
+            csvfile = csv.reader(self.data)
+            headers = []
+            data = []
+            for row in csvfile:
+                try:
+                    if (row[0] == "I" and row[2] == dataSet):
+                        headers = row
+                    elif row[2] == dataSet:
+                        rowCleaned = {headers[ind]: x for ind, x in enumerate(row) if x != ''}
+                        data.append(rowCleaned)
+                except(IndexError):
+                    pass
+            return data
+        except AttributeError:
+            print("Couldn't read file " + self.url)
+            pass
