@@ -5,8 +5,8 @@ This fork is design to import data into elasticsearch
 
 
 ## TODO
-- make importer.py a generic class
-- make a current and archeive class
 - fix CO2 datetime issue
 - actually import data into ES
-- 
+- make importer just take all files, and place in correct index based on the second and third columns
+- multithread
+- pypy
