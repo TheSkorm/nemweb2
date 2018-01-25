@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 
 # TODO DANGEROUS
 os.environ['TZ'] = 'Australia/Brisbane' #nem time is always in Sydney time
-print("This library has updated your timezone to Sydney")
+print("This library has updated your timezone to Brisbane")
 
 OLDEST_YEAR = 2009
 OLDEST_MONTH = 7
@@ -107,12 +107,18 @@ class document():
                     dataset = row[2]
                     data[dataset] = []
                 elif row[2] == dataset:
-                    rowCleaned = {headers[ind]: x for ind, x in enumerate(row) if x != ''}
+                    rowCleaned = {headers[ind]: self.string_to_float(x) for ind, x in enumerate(row) if x != ''}
                     data[dataset].append(rowCleaned)
 
             except(IndexError):
                 pass
-        return data        
+        return data
+    def string_to_float(self,x):
+        try:
+            x = float(x)
+        except ValueError:
+            pass
+        return x    
     def filter(self, dataSet):
         csvfile = csv.reader(self.data)
         headers = []
