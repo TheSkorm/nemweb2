@@ -10,3 +10,4 @@ This fork is design to import data into elasticsearch
 - make importer just take all files, and place in correct index based on the second and third columns
 - multithread
 - pypy
+- es bulk index

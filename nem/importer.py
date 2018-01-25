@@ -58,10 +58,17 @@ class document():
         nemDateRegex = re.compile('(2\d{11}(?:\d{2})?)[\._]')
         try:
             strDate = nemDateRegex.findall(url)[0]
-            dateObject = datetime.strptime(strDate, "%Y%m%d%H%M")
-            self.dateTime = dateObject.strftime("%s")
+            try:
+                dateObject = datetime.strptime(strDate, "%Y%m%d%H%M")
+            except ValueError:
+                try:
+                    dateObject = datetime.strptime(strDate, "%Y%m%d")
+                except ValueError:
+                    dateObject = datetime.strptime(strDate, "%Y%m%d%H%M%S")
+            self.dateTime = dateObject
         except(IndexError):
             pass
+
 
     def __str__(self):
         return self.url
@@ -80,8 +87,10 @@ class document():
         return self._cached
 
     def _extract(self, url):
+        print("Downloading and unzipping " + url)
         file = ZipFile(BytesIO(urlopen(url).read()))
         data = file.read(file.namelist()[0])
+        print("Finished downloading " + url)
         return data
     @property
     def datasets(self):
@@ -100,13 +109,15 @@ class document():
         headers = []
         data = {}
         dataset = ""
+        table = ""
         for row in csvfile:
             try:
                 if (row[0] == "I" ):
                     headers = row
-                    dataset = row[2]
+                    dataset = (row[1] + "-" + row[2]).lower() #prepend with the setp.world variable.
                     data[dataset] = []
-                elif row[2] == dataset:
+                    table = row[2]
+                elif row[2] == table:
                     rowCleaned = {headers[ind]: self.string_to_float(x) for ind, x in enumerate(row) if x != ''}
                     data[dataset].append(rowCleaned)
 
@@ -115,9 +126,13 @@ class document():
         return data
     def string_to_float(self,x):
         try:
-            x = float(x)
+            x = int(x)
         except ValueError:
-            pass
+            try:
+                x = float(x)
+            except ValueError:
+                pass
+            
         return x    
     def filter(self, dataSet):
         csvfile = csv.reader(self.data)
