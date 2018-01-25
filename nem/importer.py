@@ -8,23 +8,47 @@ from zipfile import ZipFile
 
 from bs4 import BeautifulSoup
 
-os.environ['TZ'] = 'Australia/Sydney' #nem time is always in Sydney time
+# TODO DANGEROUS
+os.environ['TZ'] = 'Australia/Brisbane' #nem time is always in Sydney time
+print("This library has updated your timezone to Sydney")
 
+OLDEST_YEAR = 2009
+OLDEST_MONTH = 7
 class importer():
-    def __init__(self, url="http://www.nemweb.com.au/Reports/CURRENT/"):
-        self.p5 = files(url + "P5_Reports/")
-#        self.DispatchIS = files(url + "DispatchIS_Reports/")
-#        self.Notices = files(url + "Market_Notice/")
-#        self.SCADA = files(url + "Dispatch_SCADA/")
-#        self.CO2 = files(url + "CDEII/")
-
+    def __init__(self, url="http://www.nemweb.com.au/Reports/CURRENT/", historical=False):
+        if historical==False:
+            self.p5 = files(url + "P5_Reports/", historical)
+            self.DispatchIS = files(url + "DispatchIS_Reports/", historical)
+            self.Notices = files(url + "Market_Notice/", historical)
+            self.SCADA = files(url + "Dispatch_SCADA/", historical)
+            #self.CO2 = files(url + "CDEII/", historical)
+        else:
+            self.p5 = files(url, "PUBLIC_DVD_P5MIN_REGIONSOLUTION")
+            self.DispatchIS = files(url, "PUBLIC_DVD_DISPATCHREGIONSUM")
+            # self.Notices = files(url + "Market_Notice/", historical) #TODO
+            self.SCADA = files(url, "PUBLIC_DVD_DISPATCH_UNIT_SCADA")
+            #self.CO2 = files(url, "PUBLIC_DVD_BILLING_CO2E_PUBLICATION")
 
 class files(list):
-    def __init__(self, baseUrl):
+    def __init__(self, baseUrl, historical):
+        if historical == False:
             indexPage = BeautifulSoup(urlopen(baseUrl).read(), "html.parser")
             for link in indexPage.find_all('a')[1:]:
                 url = link.get('href').split("/")[-1]
-                self.append(document(baseUrl + url))
+                if len(url) > 2 and url[-1] != "/":
+                    self.append(document(baseUrl + url))
+        else:
+            for year in range(OLDEST_YEAR,datetime.now().year+1):
+                for month in range(1,13):
+                    if year == OLDEST_YEAR and month < OLDEST_MONTH: #skip oldest months
+                        continue
+                    if year == datetime.now().year and  month >= datetime.now().month: # skip months that haven't been stored yet
+                        continue
+
+
+                    url = '{}{}/MMSDM_{}_{:02d}/MMSDM_Historical_Data_SQLLoader/DATA/{}_{}{:02d}010000.zip'.format(baseUrl, year, year, month, historical, year, month)
+                    self.append(document(url))
+                            
 
 
 class document():
@@ -59,7 +83,36 @@ class document():
         file = ZipFile(BytesIO(urlopen(url).read()))
         data = file.read(file.namelist()[0])
         return data
+    @property
+    def datasets(self):
+        csvfile = csv.reader(self.data)
+        data = []
+        for row in csvfile:
+            try:
+                if (row[0] == "I"):
+                    data.append(row[2])
+            except(IndexError):
+                pass
+        return data
+    @property
+    def clean_data(self):
+        csvfile = csv.reader(self.data)
+        headers = []
+        data = {}
+        dataset = ""
+        for row in csvfile:
+            try:
+                if (row[0] == "I" ):
+                    headers = row
+                    dataset = row[2]
+                    data[dataset] = []
+                elif row[2] == dataset:
+                    rowCleaned = {headers[ind]: x for ind, x in enumerate(row) if x != ''}
+                    data[dataset].append(rowCleaned)
 
+            except(IndexError):
+                pass
+        return data        
     def filter(self, dataSet):
         csvfile = csv.reader(self.data)
         headers = []
