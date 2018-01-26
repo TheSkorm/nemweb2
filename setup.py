@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 setup(
   name = 'nem',
   packages = ['nem'], # this must be the same as the name above
@@ -13,7 +13,6 @@ setup(
   install_requires = [
         "beautifulsoup4",
         "boto3",
-        "arrow",
-        "sphinx_rtd_theme"
+        "arrow"
   ]
 )

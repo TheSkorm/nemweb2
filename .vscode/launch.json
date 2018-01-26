@@ -6,8 +6,8 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
-            "pythonPath": "${config.python.pythonPath}",
-            "program": "${workspaceRoot}/test.py",
+            "pythonPath": "/usr/local/bin/python3",
+            "program": "${workspaceRoot}/es-importer.py",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",

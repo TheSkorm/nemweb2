@@ -60,7 +60,7 @@ class importer():
             self.DispatchIS = files(url, "PUBLIC_DVD_DISPATCHREGIONSUM")
             # self.Notices = files(url + "Market_Notice/", historical) #TODO
             self.SCADA = files(url, "PUBLIC_DVD_DISPATCH_UNIT_SCADA")
-            self.CO2 = files(url, "PUBLIC_DVD_BILLING_CO2E_PUBLICATION")
+            self.CO2 = files(url, "PUBLIC_DVD_BILLING_CO2E_PUBLICATION") #this is wrong
 
 class files(list):
     """Lists all the documents avaliable for parsing by this module

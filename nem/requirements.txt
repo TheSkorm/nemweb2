@@ -1,4 +1,3 @@
 beautifulsoup4
 boto3
 arrow
-sphinx_rtd_theme
