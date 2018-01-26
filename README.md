@@ -11,6 +11,9 @@ for data in document.filter("PRICE"):
         print(data["RRP"])
 ```
 
+## Documentation
+Documentation is still being made however the current version can be found on [readthedocs](http://nem.readthedocs.io/en/latest/).
+
 ### ElasticSearch
 This fork is design to import data into elasticsearch
 
