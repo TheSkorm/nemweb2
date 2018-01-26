@@ -1,7 +1,6 @@
 from elasticsearch import Elasticsearch
 import nem
 import urllib
-import arrow
 from dateutil import tz
 import time
 from nem.importer import files
