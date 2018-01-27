@@ -20,7 +20,7 @@ This fork is design to import data into elasticsearch
 
 ## TODO
 - make es_importer just take all files, and place in correct index based on the second and third columns
+- elasticsearch is probably import the dates and time in UTC but really we want brisbane time
 - multithread
 - pypy
 - tests
-- pip package

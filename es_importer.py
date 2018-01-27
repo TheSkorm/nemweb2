@@ -16,7 +16,7 @@ for url in file_list:
     data = nem.document(url)
     try:
         for dataset, rows in data.clean_data.items():
-            indice_name= dataset +"-t-" + data.dateTime.strftime("%Y%m%d")
+            indice_name= (dataset +"-t-" + data.dateTime.strftime("%Y%m%d")).lower()
             es = Elasticsearch()
             mapping={
                 "mappings": {

@@ -1,16 +1,13 @@
 import csv
 import re
 import os
+import pytz
 from datetime import datetime
 from io import BytesIO
 from urllib.request import urlopen
 from zipfile import ZipFile
 
 from bs4 import BeautifulSoup
-
-# TODO DANGEROUS
-os.environ['TZ'] = 'Australia/Brisbane' #nem time is always in Sydney time
-print("This library has updated your timezone to Brisbane - I'm sorry")
 
 OLDEST_YEAR = 2009
 OLDEST_MONTH = 7
@@ -117,7 +114,7 @@ class document():
                     dateObject = datetime.strptime(strDate, "%Y%m%d")
                 except ValueError:
                     dateObject = datetime.strptime(strDate, "%Y%m%d%H%M%S")
-            self.dateTime = dateObject
+            self.dateTime = dateObject.replace(tzinfo=pytz.timezone("Australia/Brisbane"))
             """Provides a datetime object for the file based on the timestamp in the filename
 
             :rtype: datetime
@@ -183,7 +180,7 @@ class document():
             try:
                 if (row[0] == "I" ):
                     headers = row
-                    dataset = (row[1] + "-" + row[2]).lower() #prepend with the setp.world variable.
+                    dataset = (row[1] + "-" + row[2]) #prepend with the setp.world variable.
                     data[dataset] = []
                     table = row[2]
                 elif row[2] == table:
