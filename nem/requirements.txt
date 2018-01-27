@@ -1,2 +1,2 @@
 beautifulsoup4
-elasticsearch
+pyexcel_xls
