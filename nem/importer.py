@@ -192,12 +192,9 @@ class document():
         return data
     def string_to_float(self,x):
         try:
-            x = int(x)
+            x = float(x)
         except ValueError:
-            try:
-                x = float(x)
-            except ValueError:
-                pass
+            pass
             
         return x    
     def filter(self, dataSet):

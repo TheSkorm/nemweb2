@@ -11,6 +11,8 @@ setup(
   keywords = ['aemo', 'nem', 'gov', 'au'], # arbitrary keywords
   classifiers = [],
   install_requires = [
-        "beautifulsoup4"
+        "beautifulsoup4",
+	"requests",
+	"pyexcel_xls"
         ]
 )

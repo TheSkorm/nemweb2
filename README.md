@@ -19,8 +19,8 @@ This fork is design to import data into elasticsearch
 
 
 ## TODO
-- make es_importer just take all files, and place in correct index based on the second and third columns
 - elasticsearch is probably import the dates and time in UTC but really we want brisbane time
-- multithread
+- multiprocessor - for large datasets we hit the GIL pretty quickly. There are probably a few ways to solve this but sharding out to multiple processors is probably the easiest
 - pypy
 - tests
+- we also hit queue capacity - can solve in elasticsearch settings or slow down processing or something
